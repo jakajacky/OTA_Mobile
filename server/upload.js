@@ -25,9 +25,12 @@ async function uploadController(ctx) {
                 fs.renameSync(path, nextPath);
             }
             //以 json 形式输出上传文件地址
-            ctx.body = getRenderData({
-                data: `${uploadHost}${nextPath.slice(nextPath.lastIndexOf('/') + 1)}`
-            });
+            //ctx.body = getRenderData({
+            //    data: `${uploadHost}${nextPath.slice(nextPath.lastIndexOf('/') + 1)}`
+            //});
+            // 以字符串 形式输出上传文件地址
+            ctx.body = `${uploadHost}${nextPath.slice(nextPath.lastIndexOf('/') + 1)}`
+
         }else {
             ctx.body = getRenderData({
                 code:1,

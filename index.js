@@ -17,7 +17,8 @@ var port = process.env.PORT || '8100';//默认端口8100
 app.use(koaBody({
     formidable: {
         //设置文件的默认保存目录，不设置则保存在系统临时目录下  os
-        uploadDir: path.resolve(__dirname, './static/uploads')
+        uploadDir: path.resolve(__dirname, './static/uploads'),
+        maxFileSize: 10000 * 1024 * 1024    // 设置上传文件大小最大限制，默认20M
     },
     multipart: true // 支持文件上传,默认不不支持
 }));
