@@ -52,6 +52,8 @@ class MongoDB {
 
     /**
      * 新增操作
+     * @param {string} collection - 集合
+     * @param {object} json - 新增条目
      */
     insert(collection, json) {
         return new Promise((resolve, reject) => {
@@ -72,6 +74,8 @@ class MongoDB {
 
     /**
      * 查询操作
+     * @param {string} collection - 集合
+     * @param {object} json - 查询条件
      */
     find(collection, json) {
         return new Promise((resolve, reject) => {
@@ -90,6 +94,9 @@ class MongoDB {
 
     /**
      * 查询并修改
+     * @param {string} collection - 集合
+     * @param {object} filterJson - 查询条件
+     * @param {object} modifyJson - 修改条目
      */
     findAndModify(collection, filterJson, modifyJson) {
         return new Promise((resolve, reject) => {
