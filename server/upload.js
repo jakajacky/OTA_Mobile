@@ -65,7 +65,7 @@ async function uploadController(ctx) {
                 appDownloadUrl: `${uploadHost}${nextPath.slice(nextPath.lastIndexOf('/') + 1)}`,
                 appPlatform: body.appPlatform,
                 buildNum: parseInt(buildNum)+1,
-                buildTime: new Date(),
+                buildTime: (new Date()).getTime(),
                 buildDesc: body.buildDesc,
             };
             const res = await MongoDB.insert('buildList', myobj);
