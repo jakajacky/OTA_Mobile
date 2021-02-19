@@ -1,14 +1,10 @@
 /**
  * 上传服务
  */
-var path = require('path');
 var fs = require('fs');//文件模块
 var qr = require('qr-image');
 var plist = require('plist');
 const MongoDB = require('./mongodb');
-const { resolve } = require('path');
-const { rejects } = require('assert');
-const { Int32 } = require('mongodb');
 
 var port = process.env.PORT || '8100';//默认端口8100
 var uploadHost = `http://172.20.110.150:${port}/uploads/`;//图片可访问地址

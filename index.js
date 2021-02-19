@@ -10,6 +10,7 @@ var Koa = require('koa2');
 
 // 子模块
 const uploadController = require('./server/upload');
+const getBuildController = require('./server/buildList');
 
 var app = new Koa();
 var port = process.env.PORT || '8100';//默认端口8100
@@ -33,7 +34,9 @@ app.use(async (ctx) => {
     if (ctx.path === '/upfile') {
         await uploadController(ctx);
     }
-
+    else if (ctx.path === '/getBuilds') {
+        await getBuildController(ctx);
+    }
 });
 
 /**
