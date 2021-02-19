@@ -108,7 +108,6 @@ async function createCounter() {
 function getBuildNum() {
     return new Promise((resolve, reject) => {
         MongoDB.findAndModify('counter', {_id:'counterID'}, {$inc:{buildNum:1}}).then(res => {
-            console.log('自增字段'+res);
             resolve(res.buildNum);
         });
     });
