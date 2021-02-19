@@ -29,9 +29,9 @@ app.use(koaStatic(
 ));
 
 //二次处理文件，修改名称
-app.use((ctx) => {
+app.use(async (ctx) => {
     if (ctx.path === '/upfile') {
-        uploadController(ctx);
+        await uploadController(ctx);
     }
 
 });

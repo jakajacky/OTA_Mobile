@@ -5,13 +5,10 @@ var path = require('path');
 var fs = require('fs');//文件模块
 var qr = require('qr-image');
 var plist = require('plist');
-var MongoClient = require('mongodb').MongoClient;
+const MongoDB = require('./mongodb');
 
 var port = process.env.PORT || '8100';//默认端口8100
-
 var uploadHost = `http://172.20.110.150:${port}/uploads/`;//图片可访问地址
-
-var url = "mongodb://localhost:27017/ota"; // 数据库
 
 async function uploadController(ctx) {
     if (ctx.path === '/upfile') {
@@ -34,7 +31,7 @@ async function uploadController(ctx) {
             //    data: `${uploadHost}${nextPath.slice(nextPath.lastIndexOf('/') + 1)}`
             //});
             // 以字符串 形式输出上传文件地址
-            ctx.body = `${uploadHost}${nextPath.slice(nextPath.lastIndexOf('/') + 1)}`
+            // ctx.body = `${uploadHost}${nextPath.slice(nextPath.lastIndexOf('/') + 1)}`
 
             // 生成plist
             var data = fs.readFileSync(`${__dirname}/manifest_tmp.plist`, 'utf-8')
@@ -52,42 +49,28 @@ async function uploadController(ctx) {
             //将二维码输出到文件流，并生成png文件
             qr_svg.pipe(require('fs').createWriteStream(`${__dirname}/../static/uploads/qr.png`));
 
-            // 创建并连接mongoDB数据库
-            MongoClient.connect(url, function(err, db) {
-                if (err) {
-                    ctx.body = getRenderData({
-                        code:1006,
-                        msg:'数据库连接失败!'
-                    });
-                }
-                else {
-                    console.log("数据库已创建并连接成功!");
-                    // 创建集合
-                    var dbase = db.db("ota");
-                    dbase.createCollection('buildList', function (err, res) {
-                        if (err) {
-                            ctx.body = getRenderData({
-                                code:1005,
-                                msg:'buildList表创建失败!'
-                            });
-                        }
-                        else {
-                            console.log("创建集合!");
-                            // 数据入库
-                            var myobj = { name: "菜鸟教程", url: "www.runoob" };
-                        }
-                    });
-                    db.close();
-                }
+            // 数据入库 buildNum buildTimeota buildDesc appId appName appVersion appDownloadUrl appPlatform
+            var myobj = {
+                appBundle: "com.baijia.ei",
+                appVersion: "1.1.0",
+                appDownloadUrl: `${uploadHost}${nextPath.slice(nextPath.lastIndexOf('/') + 1)}`,
+                appPlatform: "iOS",
+                buildNum: "1",
+                buildTime: new Date(),
+                buildDesc: "灵犀",
+            };
+            const res = await MongoDB.insert('buildList', myobj);
+            console.log(res);
+            ctx.response.body = getRenderData({
+                code: 0,
+                data: res
             });
-
         }else {
             ctx.body = getRenderData({
                 code:1,
                 msg:'file is null'
             });
         }
-
     }
 }
 
