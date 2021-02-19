@@ -6,6 +6,9 @@ var fs = require('fs');//文件模块
 var qr = require('qr-image');
 var plist = require('plist');
 const MongoDB = require('./mongodb');
+const { resolve } = require('path');
+const { rejects } = require('assert');
+const { Int32 } = require('mongodb');
 
 var port = process.env.PORT || '8100';//默认端口8100
 var uploadHost = `http://172.20.110.150:${port}/uploads/`;//图片可访问地址
@@ -49,15 +52,21 @@ async function uploadController(ctx) {
             //将二维码输出到文件流，并生成png文件
             qr_svg.pipe(require('fs').createWriteStream(`${__dirname}/../static/uploads/qr.png`));
 
+            // buildNum自增
+            createCounter();
+
             // 数据入库 buildNum buildTimeota buildDesc appId appName appVersion appDownloadUrl appPlatform
+            var body = ctx.request.body
+            var buildNum = await getBuildNum()
             var myobj = {
-                appBundle: "com.baijia.ei",
-                appVersion: "1.1.0",
+                appName: body.appName,
+                appBundle: body.appBundle,
+                appVersion: body.appVersion,
                 appDownloadUrl: `${uploadHost}${nextPath.slice(nextPath.lastIndexOf('/') + 1)}`,
-                appPlatform: "iOS",
-                buildNum: "1",
+                appPlatform: body.appPlatform,
+                buildNum: parseInt(buildNum)+1,
                 buildTime: new Date(),
-                buildDesc: "灵犀",
+                buildDesc: body.buildDesc,
             };
             const res = await MongoDB.insert('buildList', myobj);
             console.log(res);
@@ -84,6 +93,29 @@ function getRenderData(opt) {
         msg:'',
         data:null
     },opt);
+}
+
+/**
+ * 建立自增表
+ */
+async function createCounter() {
+    // 如果
+    const counter_res = await MongoDB.find('counter', {_id:"counterID"});
+    if (!counter_res) {
+        await MongoDB.insert('counter', {_id:"counterID", buildNum:0});
+    }
+}
+
+/**
+ * 获取自增字段buildNum
+ */
+function getBuildNum() {
+    return new Promise((resolve, reject) => {
+        MongoDB.findAndModify('counter', {_id:'counterID'}, {$inc:{buildNum:1}}).then(res => {
+            console.log('自增字段'+res);
+            resolve(res.buildNum);
+        });
+    });
 }
 
 module.exports = uploadController;

@@ -59,11 +59,47 @@ class MongoDB {
                 db.collection(collection).insertOne(json, function(err, res) {
                     if (err) {
                         // console.log(err);
-                        return reject(err);
+                        reject(err);
                     }
                     else {
                         // console.log(res.ops[0]);
-                        return resolve(res.ops[0]);
+                        resolve(res.ops[0]);
+                    }
+                });
+            })
+        });
+    }
+
+    /**
+     * 查询操作
+     */
+    find(collection, json) {
+        return new Promise((resolve, reject) => {
+            this.connect().then(db => {
+                let res = db.collection(collection).find(json);
+                res.toArray((err, docs) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(docs);
+                    }
+                })
+            })
+        });
+    }
+
+    /**
+     * 查询并修改
+     */
+    findAndModify(collection, filterJson, modifyJson) {
+        return new Promise((resolve, reject) => {
+            this.connect().then(db => {
+                db.collection(collection).findOneAndUpdate(filterJson, modifyJson, {}, (err, res) => {
+                    console.log(res);
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(res.value);
                     }
                 });
             })
