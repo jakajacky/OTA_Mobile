@@ -1,3 +1,6 @@
+/**
+ * 构建列表
+ */
 const MongoDB = require('./mongodb');
 
 async function getBuildListController(ctx) {
