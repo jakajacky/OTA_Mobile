@@ -16,7 +16,7 @@ const {createAppController, getAppListController} = require('./server/applicatio
 
 var app = new Koa();
 var port = process.env.PORT || '8100';//默认端口8100
-var ssl_port = '39001';//默认端口39001
+var ssl_port = 39001;//默认端口39001
 
 //ssl证书
 const options = {
@@ -66,7 +66,5 @@ server.listen(port);
 /**
  * https server
  */
-var https_server = https.createServer(options, app).listen(ssl_port, function () {
-
-});
+var https_server = https.createServer(options, app.callback()).listen(ssl_port);
 console.log('upload file server start ......   ');
