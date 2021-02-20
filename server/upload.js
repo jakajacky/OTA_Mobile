@@ -7,10 +7,11 @@ var plist = require('plist');
 const MongoDB = require('./mongodb');
 
 var port = process.env.PORT || '8100';//默认端口8100
-var uploadHost = `http://172.20.110.150:${port}/uploads/`;//图片可访问地址
 
 async function uploadController(ctx) {
     if (ctx.path === '/upfile') {
+        var uploadHost = `${ctx.protocol}://${ctx.request.host}:${port}/uploads/`;//图片可访问地址
+
         var file = ctx.request.files ? ctx.request.files.file : null; //得到文件对象
         if (file) {
 
@@ -25,26 +26,27 @@ async function uploadController(ctx) {
                 //重命名文件
                 fs.renameSync(path, nextPath);
             }
-            //以 json 形式输出上传文件地址
-            //ctx.body = getRenderData({
-            //    data: `${uploadHost}${nextPath.slice(nextPath.lastIndexOf('/') + 1)}`
-            //});
-            // 以字符串 形式输出上传文件地址
-            // ctx.body = `${uploadHost}${nextPath.slice(nextPath.lastIndexOf('/') + 1)}`
+
+            // APP下载地址
+            let downloadUrl = `${uploadHost}${nextPath.slice(nextPath.lastIndexOf('/') + 1)}`;
 
             // 生成plist
             var data = fs.readFileSync(`${__dirname}/manifest_tmp.plist`, 'utf-8')
             var obj = plist.parse(data, 'utf-8')
-            obj.items[0].assets[0].url = `${uploadHost}${nextPath.slice(nextPath.lastIndexOf('/') + 1)}`
+            obj.items[0].assets[0].url = downloadUrl
             obj = plist.build(obj)
             fs.writeFile(`${__dirname}/../static/uploads/manifest.plist`, obj, err => {
                 if (err) {
                     // 错误处理
                 }
             })
+
+            // APP安装地址
+            let installUrl = `itms-services://?action=download-manifest&url=${uploadHost}manifest.plist`;
+
             // 直接扫码安装
-            //生成二维码
-            var qr_svg = qr.image(`itms-services://?action=download-manifest&url=${uploadHost}manifest.plist`, { type: 'png' });
+            // 生成二维码
+            var qr_svg = qr.image(installUrl, { type: 'png' });
             //将二维码输出到文件流，并生成png文件
             qr_svg.pipe(require('fs').createWriteStream(`${__dirname}/../static/uploads/qr.png`));
 
@@ -58,7 +60,8 @@ async function uploadController(ctx) {
                 appName: body.appName,
                 appBundle: body.appBundle,
                 appVersion: body.appVersion,
-                appDownloadUrl: `${uploadHost}${nextPath.slice(nextPath.lastIndexOf('/') + 1)}`,
+                appDownloadUrl: downloadUrl,
+                appInstallUrl: installUrl,
                 appPlatform: body.appPlatform,
                 buildNum: parseInt(buildNum)+1,
                 buildTime: (new Date()).getTime(),

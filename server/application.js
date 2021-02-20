@@ -35,7 +35,7 @@ async function getAppListController(ctx) {
 
 async function createAppController(ctx) {
     if (ctx.path === '/createApps') {
-        let uploads_path = `http://${ctx.request.host}/uploads/`;
+        let uploads_path = `${ctx.protocol}://${ctx.request.host}/uploads/`;
 
         // appIcon上传
         var file = ctx.request.files ? ctx.request.files.file : null; //得到文件对象
