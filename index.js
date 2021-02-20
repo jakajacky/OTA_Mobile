@@ -2,6 +2,7 @@
  * 入口服务
  */
 var http = require('http');
+var https = require('https');
 var koaStatic = require('koa-static');
 var path = require('path');
 var koaBody = require('koa-body');//解析 form-data消息体
@@ -15,6 +16,13 @@ const {createAppController, getAppListController} = require('./server/applicatio
 
 var app = new Koa();
 var port = process.env.PORT || '8100';//默认端口8100
+var ssl_port = '39001';//默认端口39001
+
+//ssl证书
+const options = {
+    key: fs.readFileSync(`${__dirname}/static/cer/5208069_www.mengxin.pub.key`),
+    cert: fs.readFileSync(`${__dirname}/static/cer/5208069_www.mengxin.pub.pem`)
+};
 
 app.use(koaBody({
     formidable: {
@@ -55,4 +63,10 @@ app.use(async (ctx) => {
  */
 var server = http.createServer(app.callback());
 server.listen(port);
+/**
+ * https server
+ */
+var https_server = https.createServer(options, app).listen(ssl_port, function () {
+
+});
 console.log('upload file server start ......   ');
