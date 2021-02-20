@@ -8,7 +8,19 @@ const collection = 'applications';
 
 async function getAppListController(ctx) {
     if (ctx.path === '/getApps') {
-        let res = await MongoDB.find('buildList', {appBundle: 'com.baijia.ei'}).catch(err => {
+        let body = ctx.request.query;
+        let filterJson = {};
+        if (body.appBundle) {
+            filterJson.appBundle = body.appBundle;
+        }
+        if (body.appPlatform) {
+            filterJson.appPlatform = body.appPlatform;
+        }
+        if (body.appVersion) {
+            filterJson.appVersion = body.appVersion;
+        }
+        // console.log(filterJson);
+        let res = await MongoDB.find(collection, filterJson).catch(err => {
             ctx.body = getRenderData({
                 code: 1,
                 data: err
@@ -23,8 +35,6 @@ async function getAppListController(ctx) {
 
 async function createAppController(ctx) {
     if (ctx.path === '/createApps') {
-        // applications 结构
-        // appBundle appName appIcon appDesc
         let uploads_path = `http://${ctx.request.host}/uploads/`;
 
         // appIcon上传

@@ -39,7 +39,14 @@ app.use(async (ctx) => {
         await getBuildController(ctx);
     }
     else if (ctx.path === '/createApps') {
+        // Post
+        // 参数 appBundle appName appDesc appPlatform appVersion appIcon
         await createAppController(ctx);
+    }
+    else if (ctx.path === '/getApps') {
+        // Get
+        // 参数 appBundle appPlatform appVersion
+        await getAppListController(ctx);
     }
 });
 
