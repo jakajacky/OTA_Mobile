@@ -13,6 +13,7 @@ var Koa = require('koa2');
 const uploadController = require('./server/upload');
 const getBuildController = require('./server/buildList');
 const {createAppController, getAppListController} = require('./server/application');
+const {createDepartmentController, getDepartmentsController} = require('./server/department');
 
 var app = new Koa();
 var port = process.env.PORT || '8100';//默认端口8100
@@ -55,6 +56,16 @@ app.use(async (ctx) => {
         // Get
         // 参数 appBundle appPlatform appVersion
         await getAppListController(ctx);
+    }
+    else if (ctx.path === '/createDepartments') {
+        // Post
+        // 参数
+        await createDepartmentController(ctx);
+    }
+    else if (ctx.path === '/getDepartments') {
+        // Get
+        // 参数
+        await getDepartmentsController(ctx);
     }
 });
 
