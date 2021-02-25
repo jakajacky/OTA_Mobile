@@ -59,12 +59,12 @@ app.use(async (ctx) => {
     }
     else if (ctx.path === '/createDepartments') {
         // Post
-        // 参数
+        // 参数 departmentID departmentName
         await createDepartmentController(ctx);
     }
     else if (ctx.path === '/getDepartments') {
         // Get
-        // 参数
+        // 参数 departmentID
         await getDepartmentsController(ctx);
     }
 });
