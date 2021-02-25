@@ -10,7 +10,6 @@ async function createDepartmentController(ctx) {
     if (ctx.path === '/createDepartments') {
         // departmentID departmentName
         let body = ctx.request.body;
-        console.log(body);
         let departmentName = body.departmentName;
         let res = await MongoDB.insert(collection, {departmentName}).catch(err => {
             ctx.body = getRenderData({
@@ -18,20 +17,43 @@ async function createDepartmentController(ctx) {
                 data: err
             });
         });
-        let data = {
-            departmentID: res._id,
-            departmentName: res.departmentName,
+        if (res) {
+            let data = {
+                departmentID: res._id,
+                departmentName: res.departmentName,
+            }
+            ctx.body = getRenderData({
+                code: 200,
+                data
+            });
         }
-        ctx.body = getRenderData({
-            code: 0,
-            data
-        });
     }
 }
 
 async function getDepartmentsController(ctx) {
     if (ctx.path === '/getDepartments') {
-
+        let body = ctx.request.body;
+        let departmentID = body.departmentID;
+        let res = await MongoDB.find(collection, {departmentID}).catch(err => {
+            ctx.body = getRenderData({
+                code: 0,
+                data: err
+            });
+        });
+        if (res) {
+            let datas = Array()
+            res.forEach(element => {
+                let data = {
+                    departmentID: element._id,
+                    departmentName: element.departmentName,
+                }
+                datas.push(data);
+            });
+            ctx.body = getRenderData({
+                code: 200,
+                data: datas
+            });
+        }
     }
 }
 module.exports = {createDepartmentController, getDepartmentsController};
