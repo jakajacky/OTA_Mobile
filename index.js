@@ -8,6 +8,7 @@ var path = require('path');
 var koaBody = require('koa-body');//解析 form-data消息体
 var fs = require('fs');//文件模块
 var Koa = require('koa2');
+var cors = require('koa2-cors');
 
 // 子模块
 const uploadController = require('./server/upload');
@@ -24,6 +25,8 @@ const options = {
     key: fs.readFileSync(`${__dirname}/static/cer/5208069_www.mengxin.pub.key`),
     cert: fs.readFileSync(`${__dirname}/static/cer/5208069_www.mengxin.pub.pem`)
 };
+
+app.use(cors());
 
 app.use(koaBody({
     formidable: {
