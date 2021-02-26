@@ -10,7 +10,7 @@ var port = process.env.PORT || '8100';//默认端口8100
 
 async function uploadController(ctx) {
     if (ctx.path === '/upfile') {
-        var uploadHost = `${ctx.protocol}://${ctx.request.host}:${port}/uploads/`;//图片可访问地址
+        var uploadHost = `${ctx.protocol}://${ctx.request.host}/uploads/`;//图片可访问地址
 
         var file = ctx.request.files ? ctx.request.files.file : null; //得到文件对象
         if (file) {

@@ -11,8 +11,8 @@ var Koa = require('koa2');
 var cors = require('koa2-cors');
 
 // 子模块
-const uploadController = require('./server/upload');
-const getBuildController = require('./server/buildList');
+// const uploadController = require('./server/upload');
+const {getBuildController, uploadController} = require('./server/buildList');
 const {createAppController, getAppListController} = require('./server/application');
 const {createDepartmentController, getDepartmentsController} = require('./server/department');
 
@@ -44,7 +44,7 @@ app.use(koaStatic(
 
 //二次处理文件，修改名称
 app.use(async (ctx) => {
-    if (ctx.path === '/upfile') {
+    if (ctx.path === '/createBuilds') {
         await uploadController(ctx);
     }
     else if (ctx.path === '/getBuilds') {
