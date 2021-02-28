@@ -78,6 +78,8 @@ async function uploadController(ctx) {
                 appDownloadUrl: downloadUrl,
                 appInstallUrl: installUrl,
                 appPlatform: body.appPlatform,
+                appDepartment: body.appDepartment,
+                appResourceType: body.appResourceType,
                 buildNum: parseInt(buildNum)+1,
                 buildTime: (new Date()).getTime(),
                 buildDesc: body.buildDesc,
