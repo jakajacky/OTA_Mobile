@@ -58,7 +58,19 @@ async function getBuildsController(ctx) {
                         data: err
                     });
                 });
-                category.categoryItems = builds;
+                let one = new Array()
+                let filter_build = new Array();
+                builds.forEach(build => {
+                    let appName = build.appName;
+                    let appBundle = build.appBundle;
+                    console.log(build);
+                    if (one.indexOf(appBundle) == -1) {
+                        one.push(appBundle);
+                        filter_build.push({appBundle, appName});
+                    }
+                });
+
+                category.categoryItems = filter_build;
             }
         }
 
