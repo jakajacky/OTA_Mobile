@@ -23,55 +23,30 @@ async function getBuildListController(ctx) {
 }
 
 async function getBuildsController(ctx) {
-    if (ctx.path === '/getFilterBuilds') {
-        let res = await MongoDB.aggregate('buildList', [
-            {
-                $group : {
-                    _id:"$appDepartment",
-                    categorys:{
-                        $addToSet:{
-                            appResourceType:"$appResourceType",
-                        }
-                    },
-                }
-            }
-        ]).catch(err => {
+    if (ctx.path === '/getBuildCategory') {
+        // 部门
+        let departments = await MongoDB.find('departments').catch(err => {
             ctx.body = getRenderData({
                 code: 1,
                 data: err
             });
         });
-        // 继续组织数据
-        for (let element of res) {
-            // 查询departmentName
-            let deps = await MongoDB.find('departments', ObjectId(element._id));
-            element.departmentName = deps[0].departmentName;
-
-            // 查询categoryItems
-            for (let category of element.categorys) {
-                let builds = await MongoDB.find('buildList', {
-                    appDepartment: element._id,
-                    appResourceType: category.appResourceType
-                }).catch(err => {
-                    ctx.body = getRenderData({
-                        code: 1,
-                        data: err
-                    });
+        let res = new Array();
+        // 每个部门
+        for (let department of departments) {
+            let applications = await MongoDB.find('applications', {appDepartment:department._id.toString()}).catch(err => {
+                ctx.body = getRenderData({
+                    code: 1,
+                    data: err
                 });
-                let one = new Array()
-                let filter_build = new Array();
-                builds.forEach(build => {
-                    let appName = build.appName;
-                    let appBundle = build.appBundle;
-                    console.log(build);
-                    if (one.indexOf(appBundle) == -1) {
-                        one.push(appBundle);
-                        filter_build.push({appBundle, appName});
-                    }
-                });
-
-                category.categoryItems = filter_build;
+            });
+            console.log(applications);
+            let dep = {
+                departmentID: department._id,
+                departmentName: department.departmentName,
+                applications
             }
+            res.push(dep);
         }
 
         ctx.body = getRenderData({
@@ -80,6 +55,65 @@ async function getBuildsController(ctx) {
         });
     }
 }
+
+// async function getBuildsController(ctx) {
+//     if (ctx.path === '/getFilterBuilds') {
+//         let res = await MongoDB.aggregate('buildList', [
+//             {
+//                 $group : {
+//                     _id:"$appDepartment",
+//                     categorys:{
+//                         $addToSet:{
+//                             appResourceType:"$appResourceType",
+//                         }
+//                     },
+//                 }
+//             }
+//         ]).catch(err => {
+//             ctx.body = getRenderData({
+//                 code: 1,
+//                 data: err
+//             });
+//         });
+//         // 继续组织数据
+//         for (let element of res) {
+//             // 查询departmentName
+//             let deps = await MongoDB.find('departments', ObjectId(element._id));
+//             element.departmentName = deps[0].departmentName;
+
+//             // 查询categoryItems
+//             for (let category of element.categorys) {
+//                 let builds = await MongoDB.find('buildList', {
+//                     appDepartment: element._id,
+//                     appResourceType: category.appResourceType
+//                 }).catch(err => {
+//                     ctx.body = getRenderData({
+//                         code: 1,
+//                         data: err
+//                     });
+//                 });
+//                 let one = new Array()
+//                 let filter_build = new Array();
+//                 builds.forEach(build => {
+//                     let appName = build.appName;
+//                     let appBundle = build.appBundle;
+//                     console.log(build);
+//                     if (one.indexOf(appBundle) == -1) {
+//                         one.push(appBundle);
+//                         filter_build.push({appBundle, appName});
+//                     }
+//                 });
+
+//                 category.categoryItems = filter_build;
+//             }
+//         }
+
+//         ctx.body = getRenderData({
+//             code: 0,
+//             data: res
+//         });
+//     }
+// }
 
 var port = process.env.PORT || '8100';//默认端口8100
 
@@ -132,13 +166,11 @@ async function uploadController(ctx) {
             var body = ctx.request.body
             var buildNum = await getBuildNum()
             var myobj = {
-                appName: body.appName,
                 appBundle: body.appBundle,
                 appVersion: body.appVersion,
                 appDownloadUrl: downloadUrl,
                 appInstallUrl: installUrl,
                 appPlatform: body.appPlatform,
-                appDepartment: body.appDepartment,
                 appResourceType: body.appResourceType,
                 buildNum: parseInt(buildNum)+1,
                 buildTime: (new Date()).getTime(),

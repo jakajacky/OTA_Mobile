@@ -70,7 +70,7 @@ app.use(async (ctx) => {
         // 参数 departmentID
         await getDepartmentsController(ctx);
     }
-    else if (ctx.path === '/getFilterBuilds') {
+    else if (ctx.path === '/getBuildCategory') {
         await getBuildsController(ctx);
     }
 });
