@@ -5,6 +5,7 @@ var fs = require('fs');//文件模块
 var qr = require('qr-image');
 var plist = require('plist');
 const MongoDB = require('./mongodb');
+const { ObjectId } = require('mongodb');
 
 async function getBuildListController(ctx) {
     if (ctx.path === '/getBuilds') {
@@ -14,6 +15,53 @@ async function getBuildListController(ctx) {
                 data: err
             });
         });
+        ctx.body = getRenderData({
+            code: 0,
+            data: res
+        });
+    }
+}
+
+async function getBuildsController(ctx) {
+    if (ctx.path === '/getFilterBuilds') {
+        let res = await MongoDB.aggregate('buildList', [
+            {
+                $group : {
+                    _id:"$appDepartment",
+                    categorys:{
+                        $addToSet:{
+                            appResourceType:"$appResourceType",
+                        }
+                    },
+                }
+            }
+        ]).catch(err => {
+            ctx.body = getRenderData({
+                code: 1,
+                data: err
+            });
+        });
+        // 继续组织数据
+        for (let element of res) {
+            // 查询departmentName
+            let deps = await MongoDB.find('departments', ObjectId(element._id));
+            element.departmentName = deps[0].departmentName;
+
+            // 查询categoryItems
+            for (let category of element.categorys) {
+                let builds = await MongoDB.find('buildList', {
+                    appDepartment: element._id,
+                    appResourceType: category.appResourceType
+                }).catch(err => {
+                    ctx.body = getRenderData({
+                        code: 1,
+                        data: err
+                    });
+                });
+                category.categoryItems = builds;
+            }
+        }
+
         ctx.body = getRenderData({
             code: 0,
             data: res
@@ -133,4 +181,4 @@ function getRenderData(opt) {
     },opt);
 }
 
-module.exports = {getBuildListController, uploadController};
+module.exports = {getBuildListController, uploadController, getBuildsController};

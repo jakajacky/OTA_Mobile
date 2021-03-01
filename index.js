@@ -12,7 +12,7 @@ var cors = require('koa2-cors');
 
 // 子模块
 // const uploadController = require('./server/upload');
-const {getBuildController, uploadController} = require('./server/buildList');
+const {getBuildController, uploadController, getBuildsController} = require('./server/buildList');
 const {createAppController, getAppListController} = require('./server/application');
 const {createDepartmentController, getDepartmentsController} = require('./server/department');
 
@@ -69,6 +69,9 @@ app.use(async (ctx) => {
         // Get
         // 参数 departmentID
         await getDepartmentsController(ctx);
+    }
+    else if (ctx.path === '/getFilterBuilds') {
+        await getBuildsController(ctx);
     }
 });
 

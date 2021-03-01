@@ -73,6 +73,26 @@ class MongoDB {
     }
 
     /**
+     * 聚合查询 实现group by
+     * @param {*} collection
+     * @param {*} json
+     */
+    aggregate(collection, json) {
+        return new Promise((resolve, reject) => {
+            this.connect().then(db => {
+                let res = db.collection(collection).aggregate(json);
+                res.toArray((err, docs) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(docs);
+                    }
+                })
+            })
+        });
+    }
+
+    /**
      * 查询操作
      * @param {string} collection - 集合
      * @param {object} json - 查询条件
