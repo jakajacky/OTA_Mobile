@@ -22,6 +22,33 @@ async function getBuildListController(ctx) {
     }
 }
 
+async function getFilterBuildListController(ctx) {
+    if (ctx.path === '/getBuilds') {
+        let body = ctx.request.query;
+        console.log(body);
+        let res = await MongoDB.aggregate('buildList', [
+            { $lookup:{from:"applications", localField:"appBundle", foreignField:"appBundle", as:"application" } },
+            { $match:{appBundle:body.appBundle} }
+        ]).catch(err => {
+            ctx.body = getRenderData({
+                code: 1,
+                data: err
+            });
+        });
+        res.forEach(element => {
+            element.appName = element.application[0].appName;
+            element.appDesc = element.application[0].appDesc;
+            element.appIcon = element.application[0].appIcon;
+            element.application = null;
+        });
+
+        ctx.body = getRenderData({
+            code: 0,
+            data: res
+        });
+    }
+}
+
 async function getBuildsController(ctx) {
     if (ctx.path === '/getBuildCategory') {
         // 部门
@@ -40,7 +67,6 @@ async function getBuildsController(ctx) {
                     data: err
                 });
             });
-            console.log(applications);
             let dep = {
                 departmentID: department._id,
                 departmentName: department.departmentName,
@@ -225,4 +251,4 @@ function getRenderData(opt) {
     },opt);
 }
 
-module.exports = {getBuildListController, uploadController, getBuildsController};
+module.exports = {getBuildListController, uploadController, getBuildsController, getFilterBuildListController};

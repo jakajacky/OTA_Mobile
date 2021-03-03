@@ -12,7 +12,7 @@ var cors = require('koa2-cors');
 
 // 子模块
 // const uploadController = require('./server/upload');
-const {getBuildController, uploadController, getBuildsController} = require('./server/buildList');
+const {getBuildListController, uploadController, getBuildsController, getFilterBuildListController} = require('./server/buildList');
 const {createAppController, getAppListController} = require('./server/application');
 const {createDepartmentController, getDepartmentsController} = require('./server/department');
 
@@ -48,7 +48,7 @@ app.use(async (ctx) => {
         await uploadController(ctx);
     }
     else if (ctx.path === '/getBuilds') {
-        await getBuildController(ctx);
+        await getFilterBuildListController(ctx);
     }
     else if (ctx.path === '/createApps') {
         // Post
