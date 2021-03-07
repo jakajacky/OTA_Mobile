@@ -8,13 +8,32 @@ const MongoDB = require('./mongodb');
 const { ObjectId } = require('mongodb');
 
 async function getBuildListController(ctx) {
-    if (ctx.path === '/getBuilds') {
-        let res = await MongoDB.find('buildList', {appBundle: 'com.baijia.ei'}).catch(err => {
+    if (ctx.path === '/getBuildDetail') {
+        let body = ctx.request.query;
+        let res = await MongoDB.find('buildList', {_id: ObjectId(body.buildId)}).catch(err => {
             ctx.body = getRenderData({
                 code: 1,
                 data: err
             });
         });
+        let build = res[0];
+        console.log(res);
+        res = await MongoDB.aggregate('buildList', [
+            { $lookup:{from:"applications", localField:"appBundle", foreignField:"appBundle", as:"application" } },
+            { $match:{appBundle:build.appBundle} }
+        ]).catch(err => {
+            ctx.body = getRenderData({
+                code: 1,
+                data: err
+            });
+        });
+        res.forEach(element => {
+            element.appName = element.application[0].appName;
+            element.appDesc = element.application[0].appDesc;
+            element.appIcon = element.application[0].appIcon;
+            element.application = null;
+        });
+
         ctx.body = getRenderData({
             code: 0,
             data: res

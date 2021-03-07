@@ -47,6 +47,9 @@ app.use(async (ctx) => {
     if (ctx.path === '/createBuilds') {
         await uploadController(ctx);
     }
+    else if (ctx.path === '/getBuildDetail') {
+        await getBuildListController(ctx);
+    }
     else if (ctx.path === '/getBuilds') {
         await getFilterBuildListController(ctx);
     }
